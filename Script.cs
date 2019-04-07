@@ -14,10 +14,12 @@ List<IMyCameraBlock>          listCameras = new List<IMyCameraBlock>();
 IMyRemoteControl remote;
 IMyCameraBlock mainCamera;
 
+Vector3D v3dSpawendPosition = new Vector3D(0, 0, 0);   
+
 // --------
 // run interval
 // --------
-const double EXEC_FRAME_RESOLUTION = 15;
+const double EXEC_FRAME_RESOLUTION = 20;
 const double EXEC_INTERVAL_TICK = 1 / EXEC_FRAME_RESOLUTION;
 double currentTime = 0;
 
@@ -80,7 +82,7 @@ private void checkUpdateType(UpdateType updateSource)
 {
     // check updateTypes
     if( (updateSource & ( UpdateType.Update1 | UpdateType.Update10 | UpdateType.Update100 | UpdateType.Once )) == 0 ) {
-        error.add(ERROR_UPDATE_TYPE_INVALID);
+        //error.add(ERROR_UPDATE_TYPE_INVALID);
     }
 }
 
@@ -97,7 +99,7 @@ private void procedure()
         updateTimer = 0;
         Echo("updating...");
 
-        this.blocks = new Blocks(GridTerminalSystem, Me.CubeGrid, error);
+        //this.blocks = new Blocks(GridTerminalSystem, Me.CubeGrid, error);
     }
 
    Vector3D player = new Vector3D(0, 0, 0);        
