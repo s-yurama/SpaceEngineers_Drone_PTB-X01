@@ -10,47 +10,96 @@ const double AttackRange     = 800;
 List<IMyTerminalBlock>        list        = new List<IMyTerminalBlock>();        
 List<IMySmallMissileLauncher> listWeapons = new List<IMySmallMissileLauncher>();       
 List<IMyCameraBlock>          listCameras = new List<IMyCameraBlock>();
-    
+
 IMyRemoteControl remote;
 IMyCameraBlock mainCamera;
-          
-Vector3D v3dSpawendPosition = new Vector3D(0, 0, 0);        
-            
-public Program() {
-     
+
+// --------
+// run interval
+// --------
+const double EXEC_FRAME_RESOLUTION = 15;
+const double EXEC_INTERVAL_TICK = 1 / EXEC_FRAME_RESOLUTION;
+double currentTime = 0;
+
+// --------
+// update interval
+// --------
+const int UPDATE_INTERVAL = 10;
+double updateTimer = 0;
+   
+public Program()
+{
     // The constructor, called only once every session and     
     // always before any other method is called. Use it to     
     // initialize your script.      
     //          
     // The constructor is optional and can be removed if not     
     // needed.
+    // 
+    // It's recommended to set RuntimeInfo.UpdateFrequency 
+    // here, which will allow your script to run itself without a 
+    // timer block.
      
+    updateTimer = UPDATE_INTERVAL;
+    Runtime.UpdateFrequency = UpdateFrequency.Update1;
 }
      
-
-     
-public void Save() {
-     
+public void Save()
+{
     // Called when the program needs to save its state. Use     
     // this method to save your state to the Storage field     
     // or some other means.      
     //      
     // This method is optional and can be removed if not     
     // needed.
-     
 }
      
-
-     
-public void Main(string argument)    
+public void Main(string argument, UpdateType updateSource)
 {
-     
     // The main entry point of the script, invoked every time     
-    // one of the programmable block's Run actions are invoked.     
+    // one of the programmable block's Run actions are invoked,
+    // or the script updates itself. The updateSource argument
+    // describes where the update came from.
     //      
-    // The method itself is required, but the argument above     
+    // The method itself is required, but the arguments above
     // can be removed if not needed.
-           
+        
+    checkUpdateType(updateSource);
+
+    currentTime += Runtime.TimeSinceLastRun.TotalSeconds;
+    if (currentTime < EXEC_INTERVAL_TICK) {
+        return;
+    }
+
+    procedure();
+
+    currentTime = 0;
+}
+
+private void checkUpdateType(UpdateType updateSource)
+{
+    // check updateTypes
+    if( (updateSource & ( UpdateType.Update1 | UpdateType.Update10 | UpdateType.Update100 | UpdateType.Once )) == 0 ) {
+        error.add(ERROR_UPDATE_TYPE_INVALID);
+    }
+}
+
+/**
+ * main control procedure
+ */
+private void procedure()
+{
+    updateTimer += currentTime;
+
+    if (updateTimer < UPDATE_INTERVAL) {
+        Echo($"next refresh: {UPDATE_INTERVAL - updateTimer:0}");
+    } else {    
+        updateTimer = 0;
+        Echo("updating...");
+
+        this.blocks = new Blocks(GridTerminalSystem, Me.CubeGrid, error);
+    }
+
    Vector3D player = new Vector3D(0, 0, 0);        
         
    try     
